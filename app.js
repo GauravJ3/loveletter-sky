@@ -1,27 +1,61 @@
+const romanticCards = [
+  {
+    q: "Will you let me keep turning ordinary days into little love stories with you?",
+    m: "You are my favorite chapter, every single day.",
+  },
+  {
+    q: "Can we promise to choose softness, honesty, and laughter in every season?",
+    m: "Love grows deepest where kindness is consistent.",
+  },
+  {
+    q: "Would you say yes to more sunsets, warm hugs, and long hand-held walks with me?",
+    m: "With you, even silence feels like poetry.",
+  },
+  {
+    q: "Do you love Gaurav? Because he loves you more than anything.",
+    m: "Final card unlocked: forever energy.",
+  },
+];
+
+const affirmations = [
+  "Perfect choice. Your yes looks beautiful.",
+  "That yes just made the sky blush.",
+  "Heart approved. Carrying love forward.",
+  "Destiny says: excellent decision, madamji.",
+];
+
 const els = {
   yesBtn: document.getElementById("yesBtn"),
   noBtn: document.getElementById("noBtn"),
   actionArea: document.getElementById("actionArea"),
-  questionCard: document.getElementById("questionCard"),
+  questionCard: document.getElementById("frontCard"),
+  stackWrap: document.getElementById("stackWrap"),
+  cardIndex: document.getElementById("cardIndex"),
+  cardQuestion: document.getElementById("cardQuestion"),
+  cardMessage: document.getElementById("cardMessage"),
+  affirmation: document.getElementById("affirmation"),
   celebration: document.getElementById("celebration"),
   canvas: document.getElementById("petalCanvas"),
+  loveAudio: document.getElementById("loveAudio"),
 };
 
 let confettiId = null;
+let cardCursor = 0;
 
 init();
 
 function init() {
   bindEvents();
   runPetalBackground();
+  setCard();
   runEntranceAnimation();
 }
 
 function bindEvents() {
   els.yesBtn.addEventListener("click", handleYes);
-  els.noBtn.addEventListener("mouseenter", () => dodgeNoButton());
-  els.noBtn.addEventListener("mousemove", () => dodgeNoButton());
-  els.noBtn.addEventListener("touchstart", () => dodgeNoButton(), { passive: true });
+  els.noBtn.addEventListener("mouseenter", dodgeNoButton);
+  els.noBtn.addEventListener("mousemove", dodgeNoButton);
+  els.noBtn.addEventListener("touchstart", dodgeNoButton, { passive: true });
   els.noBtn.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -29,57 +63,82 @@ function bindEvents() {
   });
 }
 
+function setCard() {
+  const c = romanticCards[cardCursor];
+  els.cardIndex.textContent = `Card ${cardCursor + 1} of ${romanticCards.length}`;
+  els.cardQuestion.textContent = c.q;
+  els.cardMessage.textContent = c.m;
+}
+
 function dodgeNoButton() {
   const area = els.actionArea.getBoundingClientRect();
   const btn = els.noBtn;
   const maxX = Math.max(0, area.width - btn.offsetWidth);
-  const maxY = Math.max(0, area.height + 60 - btn.offsetHeight);
+  const maxY = Math.max(0, area.height + 74 - btn.offsetHeight);
   const x = Math.random() * maxX - maxX / 2;
   const y = Math.random() * maxY - maxY / 2;
-  btn.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 26 - 13}deg)`;
-  if (window.gsap) {
-    gsap.fromTo(btn, { scale: 0.98 }, { scale: 1.02, duration: 0.12, yoyo: true, repeat: 1 });
-  }
+  btn.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 30 - 15}deg)`;
+  if (window.gsap) gsap.fromTo(btn, { scale: 0.98 }, { scale: 1.04, duration: 0.12, yoyo: true, repeat: 1 });
 }
 
 function handleYes() {
+  const line = affirmations[Math.floor(Math.random() * affirmations.length)];
+  els.affirmation.textContent = line;
+
+  launchConfetti(1200);
+  spawnRoseBurst(18);
+
+  if (cardCursor < romanticCards.length - 1) {
+    transitionToNextCard();
+    return;
+  }
+
+  openFinalCelebration();
+}
+
+function transitionToNextCard() {
   if (window.gsap) {
-    gsap.to("#questionCard", {
+    gsap.to(els.questionCard, {
+      y: -22,
       opacity: 0,
-      y: -16,
-      scale: 0.97,
+      rotate: -2,
+      duration: 0.28,
+      onComplete: () => {
+        cardCursor += 1;
+        setCard();
+        gsap.fromTo(els.questionCard, { y: 22, opacity: 0, rotate: 2 }, { y: 0, opacity: 1, rotate: 0, duration: 0.35 });
+      },
+    });
+  } else {
+    cardCursor += 1;
+    setCard();
+  }
+}
+
+function openFinalCelebration() {
+  if (window.gsap) {
+    gsap.to(".card-stack-shell", {
+      opacity: 0,
+      y: -18,
       duration: 0.35,
       onComplete: () => {
-        els.questionCard.classList.add("hidden");
+        document.querySelector(".card-stack-shell").classList.add("hidden");
         els.celebration.classList.remove("hidden");
         animateCelebrationIn();
       },
     });
   } else {
-    els.questionCard.classList.add("hidden");
+    document.querySelector(".card-stack-shell").classList.add("hidden");
     els.celebration.classList.remove("hidden");
   }
-  launchConfetti();
-  spawnRoseBurst();
+  launchConfetti(2600);
+  spawnRoseBurst(36);
+  playLoveHook();
 }
 
 function runEntranceAnimation() {
   if (!window.gsap) return;
-  gsap.from("#questionCard", { y: 20, opacity: 0, duration: 0.8, ease: "power2.out" });
-  gsap.to("#yesBtn", {
-    boxShadow: "0 0 0 0 rgba(255, 92, 159, 0.55)",
-    duration: 0.1,
-    repeat: -1,
-    repeatDelay: 0.8,
-    yoyo: true,
-    onRepeat: () => {
-      gsap.fromTo(
-        "#yesBtn",
-        { boxShadow: "0 0 0 0 rgba(255, 92, 159, 0.45)" },
-        { boxShadow: "0 0 0 14px rgba(255, 92, 159, 0)", duration: 0.65, ease: "power1.out" },
-      );
-    },
-  });
+  gsap.from(".card-stack-shell", { y: 22, opacity: 0, duration: 0.8, ease: "power2.out" });
 }
 
 function animateCelebrationIn() {
@@ -89,9 +148,40 @@ function animateCelebrationIn() {
   gsap.from(".bouquet", { y: 12, opacity: 0, duration: 0.55, delay: 0.15 });
 }
 
-function spawnRoseBurst() {
+function playLoveHook() {
+  const audio = els.loveAudio;
+  if (audio && audio.src && !audio.src.endsWith("/")) {
+    audio.currentTime = 0;
+    audio.play().catch(() => playSoftChime());
+    return;
+  }
+  playSoftChime();
+}
+
+function playSoftChime() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  const ctx = new AC();
+  [440, 554, 659].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = freq;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const start = ctx.currentTime + i * 0.12;
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.035, start + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.28);
+    osc.start(start);
+    osc.stop(start + 0.3);
+  });
+  setTimeout(() => ctx.close(), 900);
+}
+
+function spawnRoseBurst(count) {
   const symbols = ["🌹", "🌸", "💖", "✨", "🫶"];
-  for (let i = 0; i < 32; i += 1) {
+  for (let i = 0; i < count; i += 1) {
     const el = document.createElement("span");
     el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
     el.style.position = "fixed";
@@ -115,9 +205,8 @@ function spawnRoseBurst() {
   }
 }
 
-function launchConfetti() {
+function launchConfetti(duration = 2200) {
   if (typeof confetti === "function") {
-    const duration = 2200;
     const start = Date.now();
     const palette = ["#ff5c9f", "#ffd56a", "#ffffff", "#9bf7d3", "#ff9d63"];
     const timer = setInterval(() => {
@@ -126,7 +215,7 @@ function launchConfetti() {
         clearInterval(timer);
         return;
       }
-      const count = Math.max(15, Math.round((t / duration) * 38));
+      const count = Math.max(12, Math.round((t / duration) * 34));
       confetti({
         particleCount: count,
         spread: 76,
@@ -159,8 +248,6 @@ function launchConfetti() {
   }));
 
   let start = performance.now();
-  const duration = 2800;
-
   const frame = (now) => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     pieces.forEach((p) => {
@@ -174,15 +261,12 @@ function launchConfetti() {
       ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.6);
       ctx.restore();
     });
-
-    if (now - start < duration) {
-      confettiId = requestAnimationFrame(frame);
-    } else {
+    if (now - start < duration) confettiId = requestAnimationFrame(frame);
+    else {
       cancelAnimationFrame(confettiId);
       canvas.remove();
     }
   };
-
   confettiId = requestAnimationFrame(frame);
 }
 
@@ -217,12 +301,10 @@ function runPetalBackground() {
       p.y += p.speedY;
       p.angle += p.sway;
       p.x += Math.sin(p.angle) * 0.7;
-
       if (p.y > canvas.height + 10) {
         p.y = -10;
         p.x = Math.random() * canvas.width;
       }
-
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(p.angle);

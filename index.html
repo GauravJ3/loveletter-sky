@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>One Little Question</title>
+    <title>Love Card Journey</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,14 +15,26 @@
   <body>
     <canvas id="petalCanvas" aria-hidden="true"></canvas>
     <main class="stage">
-      <section id="questionCard" class="card">
+      <section class="card-stack-shell">
         <p class="tag">A tiny heart mission</p>
-        <h1>Would you like to say yes to love, laughter, and a beautiful future with Gaurav?</h1>
-        <p class="sub">Choose wisely, madamji.</p>
-        <div class="actions" id="actionArea">
-          <button id="yesBtn" class="yes">Yes, with all my heart</button>
-          <button id="noBtn" class="no" aria-disabled="true" tabindex="-1">No</button>
+        <h1>Love Card Journey</h1>
+        <p class="sub">Say yes through these little cards and unlock the final surprise.</p>
+
+        <div id="stackWrap" class="stack-wrap" aria-live="polite">
+          <article id="frontCard" class="card question-card">
+            <p id="cardIndex" class="card-index">Card 1 of 4</p>
+            <h2 id="cardQuestion" class="card-question"></h2>
+            <p id="cardMessage" class="card-message"></p>
+            <div class="actions" id="actionArea">
+              <button id="yesBtn" class="yes">Yes, with all my heart</button>
+              <button id="noBtn" class="no" aria-disabled="true" tabindex="-1">No</button>
+            </div>
+          </article>
+          <article class="card ghost-card ghost-1" aria-hidden="true"></article>
+          <article class="card ghost-card ghost-2" aria-hidden="true"></article>
         </div>
+
+        <p id="affirmation" class="affirmation"></p>
       </section>
 
       <section id="celebration" class="celebration hidden" aria-live="polite">
@@ -39,6 +51,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <audio id="loveAudio" preload="none" src="./assets/audio/love-hook.mp3"></audio>
     <script src="./app.js"></script>
   </body>
 </html>
