@@ -171,6 +171,7 @@ function startNoButtonWander() {
       left: tx,
       top: ty,
       rotation: Math.random() * 18 - 9,
+      opacity: 1,
       duration: 0.9,
       ease: "power2.out",
       onComplete: () => {

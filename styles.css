@@ -178,7 +178,12 @@ button:hover {
   position: fixed;
   left: 14px;
   top: 96px;
-  background: rgba(255, 255, 255, 0.18);
+  background: linear-gradient(135deg, #ff7fb6, #ff9f79);
+  color: #2a0817;
+  border: 2px solid rgba(255, 239, 247, 0.95);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.26);
+  text-shadow: none;
+  opacity: 1;
   transition: transform 180ms ease, background 180ms ease;
   user-select: none;
   z-index: 9999;
@@ -187,7 +192,7 @@ button:hover {
 
 .no::after {
   content: "  🕊";
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .affirmation {
