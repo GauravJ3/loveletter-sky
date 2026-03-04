@@ -182,6 +182,13 @@ function startNoButtonWander() {
   move();
 }
 
+function stopNoButtonWander() {
+  if (noWanderTimer) {
+    clearTimeout(noWanderTimer);
+    noWanderTimer = null;
+  }
+}
+
 function getViewportSize() {
   if (window.visualViewport) {
     return {
@@ -238,6 +245,8 @@ function openFinalCelebration() {
         document.querySelector(".card-stack-shell").classList.add("hidden");
         els.celebration.classList.remove("hidden");
         document.body.classList.add("final-mode");
+        document.body.classList.add("final-message-lock");
+        stopNoButtonWander();
         animateCelebrationIn();
       },
     });
@@ -245,6 +254,8 @@ function openFinalCelebration() {
     document.querySelector(".card-stack-shell").classList.add("hidden");
     els.celebration.classList.remove("hidden");
     document.body.classList.add("final-mode");
+    document.body.classList.add("final-message-lock");
+    stopNoButtonWander();
   }
   playLoveHook();
   els.celebration.classList.add("settled");

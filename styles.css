@@ -37,6 +37,14 @@ body.final-mode #petalCanvas {
   opacity: 0.25;
 }
 
+body.final-message-lock #petalCanvas {
+  display: none;
+}
+
+body.final-message-lock .stage {
+  align-items: center;
+}
+
 .stage {
   min-height: 100vh;
   display: grid;
@@ -209,6 +217,15 @@ button:hover {
   position: relative;
   z-index: 50;
   min-height: 360px;
+}
+
+body.final-message-lock .celebration {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-height: min(88vh, 700px);
+  overflow: auto;
 }
 
 .celebration::before {
