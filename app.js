@@ -161,10 +161,9 @@ function handleYes() {
   const line = affirmations[Math.floor(Math.random() * affirmations.length)];
   els.affirmation.textContent = line;
 
-  launchConfetti(1200);
-  spawnRoseBurst(18);
-
   if (cardCursor < romanticCards.length - 1) {
+    launchConfetti(900);
+    spawnRoseBurst(12);
     transitionToNextCard();
     return;
   }
@@ -209,12 +208,8 @@ function openFinalCelebration() {
     els.celebration.classList.remove("hidden");
     document.body.classList.add("final-mode");
   }
-  launchConfetti(1600);
-  spawnRoseBurst(18);
   playLoveHook();
-  setTimeout(() => {
-    els.celebration.classList.add("settled");
-  }, 1800);
+  els.celebration.classList.add("settled");
 }
 
 function runEntranceAnimation() {
@@ -224,9 +219,7 @@ function runEntranceAnimation() {
 
 function animateCelebrationIn() {
   if (!window.gsap) return;
-  gsap.from("#celebration", { opacity: 0, y: 18, scale: 0.98, duration: 0.6, ease: "back.out(1.2)" });
-  gsap.from(".teddy", { y: 20, rotate: -8, duration: 0.65, ease: "back.out(1.8)" });
-  gsap.from(".bouquet", { y: 12, opacity: 0, duration: 0.55, delay: 0.15 });
+  gsap.from("#celebration", { opacity: 0, y: 8, duration: 0.35, ease: "power1.out" });
 }
 
 function playLoveHook() {

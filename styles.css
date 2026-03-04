@@ -219,7 +219,7 @@ button:hover {
 
 .teddy {
   font-size: 4rem;
-  animation: bounce 1.2s ease-in-out infinite;
+  animation: none;
 }
 
 .bouquet {
@@ -287,8 +287,64 @@ button:hover {
 }
 
 @media (max-width: 639px) {
+  .stage {
+    padding: 10px 10px calc(16px + env(safe-area-inset-bottom));
+    align-items: start;
+  }
+
+  .card,
+  .celebration,
+  .card-stack-shell {
+    width: min(100vw - 12px, 640px);
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .stack-wrap {
+    min-height: 360px;
+  }
+
+  .question-card {
+    padding: 16px 12px;
+  }
+
+  .card-question {
+    font-size: 1.24rem;
+    line-height: 1.35;
+  }
+
+  .card-message {
+    font-size: 1.02rem;
+    line-height: 1.5;
+    min-height: 62px;
+  }
+
+  .actions {
+    margin-top: 14px;
+    min-height: 66px;
+  }
+
+  .yes {
+    font-size: 1rem;
+    padding: 12px 10px;
+  }
+
   .no {
     font-size: 0.88rem;
     padding: 10px 12px;
+    min-width: 86px;
+  }
+
+  .celebration {
+    min-height: 420px;
+  }
+
+  .celebration h2 {
+    font-size: 2rem;
+  }
+
+  .celebration p {
+    font-size: 1.03rem;
+    line-height: 1.55;
   }
 }
