@@ -239,6 +239,44 @@ body.final-message-lock .celebration * {
   transition: none !important;
 }
 
+#finalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: linear-gradient(160deg, rgba(48, 12, 40, 0.995), rgba(70, 18, 56, 0.99));
+  color: #fff7fc;
+}
+
+#finalOverlay .final-inner {
+  width: min(760px, 100%);
+  border: 1px solid rgba(255, 225, 238, 0.55);
+  border-radius: 16px;
+  padding: 16px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  text-align: center;
+}
+
+#finalOverlay h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 7vw, 3rem);
+  line-height: 1.15;
+}
+
+#finalOverlay p {
+  margin: 10px auto 0;
+  max-width: 58ch;
+  font-size: clamp(1rem, 3.8vw, 1.2rem);
+  line-height: 1.6;
+}
+
+#finalOverlay .final {
+  font-weight: 700;
+  color: #fff1b6;
+}
+
 .celebration::before {
   content: "";
   position: absolute;
@@ -380,6 +418,17 @@ body.final-message-lock .celebration * {
     width: calc(100vw - 8px);
     max-height: 96dvh;
     padding: 12px 10px 16px;
+  }
+
+  #finalOverlay {
+    align-items: start;
+    overflow: auto;
+    padding: 8px;
+  }
+
+  #finalOverlay .final-inner {
+    width: 100%;
+    padding: 12px 10px 14px;
   }
 
   body.final-message-lock .teddy,

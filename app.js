@@ -272,12 +272,31 @@ function transitionToNextCard() {
 }
 
 function openFinalCelebration() {
-  document.querySelector(".card-stack-shell").classList.add("hidden");
-  els.celebration.classList.remove("hidden");
-  document.body.classList.add("final-mode");
-  document.body.classList.add("final-message-lock");
   stopNoButtonWander();
-  els.celebration.classList.add("settled");
+  renderFinalOverlay();
+}
+
+function renderFinalOverlay() {
+  document.body.classList.add("final-mode", "final-message-lock");
+  const existing = document.getElementById("finalOverlay");
+  if (existing) return;
+
+  const overlay = document.createElement("section");
+  overlay.id = "finalOverlay";
+  overlay.setAttribute("aria-live", "polite");
+  overlay.innerHTML = `
+    <div class="final-inner">
+      <h2>Yay! You chose love.</h2>
+      <p>
+        Congratulations for choosing such a creative, beautiful, and perfect person.
+        Trust me, you have not seen Venus' full potential yet, madamji.
+      </p>
+      <p class="final">Now let's make unforgettable memories together.</p>
+    </div>
+  `;
+
+  document.querySelector(".stage").style.display = "none";
+  document.body.appendChild(overlay);
 }
 
 function runEntranceAnimation() {
