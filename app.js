@@ -61,10 +61,23 @@ function bindEvents() {
   els.noBtn.addEventListener("mouseenter", dodgeNoButton);
   els.noBtn.addEventListener("mousemove", dodgeNoButton);
   els.noBtn.addEventListener("touchstart", dodgeNoButton, { passive: true });
+  els.noBtn.addEventListener("mouseover", dodgeNoButton);
+  els.noBtn.addEventListener("pointerenter", dodgeNoButton);
+  els.noBtn.addEventListener("pointermove", dodgeNoButton);
   document.addEventListener("mousemove", (event) => {
     lastPointer = { x: event.clientX, y: event.clientY };
     evadePointerProximity(event);
   });
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (event.pointerType === "mouse" || event.pointerType === "pen") {
+        lastPointer = { x: event.clientX, y: event.clientY };
+        evadePointerProximity(event);
+      }
+    },
+    { passive: true },
+  );
   document.addEventListener(
     "touchmove",
     (event) => {
@@ -110,6 +123,11 @@ function evadePointerProximity(event) {
   const triggerRadius = isCoarsePointer ? 320 : 240;
   if (distance < triggerRadius) dodgeNoButton(event);
 }
+
+setInterval(() => {
+  if (document.body.classList.contains("final-message-lock")) return;
+  evadePointerProximity({ clientX: lastPointer.x, clientY: lastPointer.y });
+}, 140);
 
 function setCard() {
   const c = romanticCards[cardCursor];
