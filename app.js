@@ -52,8 +52,7 @@ function init() {
   runPetalBackground();
   setCard();
   runEntranceAnimation();
-  placeNoButtonRandomly();
-  if (isCoarsePointer) startNoButtonWander();
+  positionNoButtonInitial();
 }
 
 function bindEvents() {
@@ -75,8 +74,18 @@ function bindEvents() {
     },
     { passive: true },
   );
-  window.addEventListener("resize", placeNoButtonRandomly);
-  if (window.visualViewport) window.visualViewport.addEventListener("resize", placeNoButtonRandomly);
+  document.addEventListener(
+    "touchstart",
+    (event) => {
+      const t = event.touches && event.touches[0];
+      if (!t) return;
+      lastPointer = { x: t.clientX, y: t.clientY };
+      evadePointerProximity({ clientX: t.clientX, clientY: t.clientY });
+    },
+    { passive: true },
+  );
+  window.addEventListener("resize", positionNoButtonInitial);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", positionNoButtonInitial);
   els.noBtn.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -105,7 +114,7 @@ function setCard() {
   els.cardIndex.textContent = `Card ${cardCursor + 1} of ${romanticCards.length}`;
   els.cardQuestion.textContent = c.q;
   els.cardMessage.textContent = c.m;
-  placeNoButtonRandomly();
+  positionNoButtonInitial();
 }
 
 function dodgeNoButton(event) {
@@ -153,8 +162,35 @@ function dodgeNoButton(event) {
   if (window.gsap) gsap.fromTo(btn, { scale: 0.98 }, { scale: 1.04, duration: 0.12, yoyo: true, repeat: 1 });
 }
 
-function placeNoButtonRandomly() {
-  dodgeNoButton({ clientX: lastPointer.x, clientY: lastPointer.y });
+function positionNoButtonInitial() {
+  const btn = els.noBtn;
+  const yes = els.yesBtn.getBoundingClientRect();
+  const { vw, vh } = getViewportSize();
+  const bw = btn.offsetWidth || 92;
+  const bh = btn.offsetHeight || 42;
+  const pad = 12;
+  const mobileMode = window.matchMedia("(max-width: 639px), (hover: none), (pointer: coarse)").matches;
+
+  let left = yes.left;
+  let top = yes.bottom + 10;
+
+  if (mobileMode) {
+    left = yes.left + (yes.width - bw) / 2;
+    top = yes.bottom + 10;
+  } else {
+    left = yes.right + 12;
+    top = yes.top + (yes.height - bh) / 2;
+  }
+
+  left = Math.max(pad, Math.min(vw - bw - pad, left));
+  top = Math.max(pad, Math.min(vh - bh - pad, top));
+
+  btn.style.position = "fixed";
+  btn.style.left = `${left}px`;
+  btn.style.top = `${top}px`;
+  btn.style.transform = "rotate(0deg)";
+  btn.style.visibility = "visible";
+  btn.style.opacity = "1";
 }
 
 function startNoButtonWander() {
