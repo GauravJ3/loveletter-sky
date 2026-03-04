@@ -63,6 +63,7 @@ function bindEvents() {
     evadePointerProximity(event);
   });
   window.addEventListener("resize", placeNoButtonRandomly);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", placeNoButtonRandomly);
   els.noBtn.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -91,12 +92,12 @@ function setCard() {
   els.cardIndex.textContent = `Card ${cardCursor + 1} of ${romanticCards.length}`;
   els.cardQuestion.textContent = c.q;
   els.cardMessage.textContent = c.m;
+  placeNoButtonRandomly();
 }
 
 function dodgeNoButton(event) {
   const btn = els.noBtn;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
+  const { vw, vh } = getViewportSize();
   const pad = 18;
   const bw = btn.offsetWidth || 140;
   const bh = btn.offsetHeight || 48;
@@ -134,11 +135,26 @@ function dodgeNoButton(event) {
   btn.style.left = `${targetX}px`;
   btn.style.top = `${targetY}px`;
   btn.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
+  btn.style.visibility = "visible";
+  btn.style.opacity = "1";
   if (window.gsap) gsap.fromTo(btn, { scale: 0.98 }, { scale: 1.04, duration: 0.12, yoyo: true, repeat: 1 });
 }
 
 function placeNoButtonRandomly() {
   dodgeNoButton({ clientX: lastPointer.x, clientY: lastPointer.y });
+}
+
+function getViewportSize() {
+  if (window.visualViewport) {
+    return {
+      vw: Math.max(280, window.visualViewport.width),
+      vh: Math.max(380, window.visualViewport.height),
+    };
+  }
+  return {
+    vw: Math.max(280, window.innerWidth),
+    vh: Math.max(380, window.innerHeight),
+  };
 }
 
 function handleYes() {

@@ -179,6 +179,8 @@ button:hover {
   background: rgba(255, 255, 255, 0.18);
   transition: transform 180ms ease, background 180ms ease;
   user-select: none;
+  z-index: 90;
+  min-width: 92px;
 }
 
 .no::after {
@@ -281,5 +283,12 @@ button:hover {
 @media (min-width: 640px) {
   .actions {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 639px) {
+  .no {
+    font-size: 0.88rem;
+    padding: 10px 12px;
   }
 }
