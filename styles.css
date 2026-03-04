@@ -114,6 +114,13 @@ button:hover {
 
 .no {
   position: relative;
+  background: rgba(255, 255, 255, 0.18);
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.no::after {
+  content: " 🕊";
+  opacity: 0.8;
 }
 
 .celebration {

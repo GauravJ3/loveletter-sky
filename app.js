@@ -14,6 +14,7 @@ init();
 function init() {
   bindEvents();
   runPetalBackground();
+  runEntranceAnimation();
 }
 
 function bindEvents() {
@@ -36,13 +37,56 @@ function dodgeNoButton() {
   const x = Math.random() * maxX - maxX / 2;
   const y = Math.random() * maxY - maxY / 2;
   btn.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 26 - 13}deg)`;
+  if (window.gsap) {
+    gsap.fromTo(btn, { scale: 0.98 }, { scale: 1.02, duration: 0.12, yoyo: true, repeat: 1 });
+  }
 }
 
 function handleYes() {
-  els.questionCard.classList.add("hidden");
-  els.celebration.classList.remove("hidden");
+  if (window.gsap) {
+    gsap.to("#questionCard", {
+      opacity: 0,
+      y: -16,
+      scale: 0.97,
+      duration: 0.35,
+      onComplete: () => {
+        els.questionCard.classList.add("hidden");
+        els.celebration.classList.remove("hidden");
+        animateCelebrationIn();
+      },
+    });
+  } else {
+    els.questionCard.classList.add("hidden");
+    els.celebration.classList.remove("hidden");
+  }
   launchConfetti();
   spawnRoseBurst();
+}
+
+function runEntranceAnimation() {
+  if (!window.gsap) return;
+  gsap.from("#questionCard", { y: 20, opacity: 0, duration: 0.8, ease: "power2.out" });
+  gsap.to("#yesBtn", {
+    boxShadow: "0 0 0 0 rgba(255, 92, 159, 0.55)",
+    duration: 0.1,
+    repeat: -1,
+    repeatDelay: 0.8,
+    yoyo: true,
+    onRepeat: () => {
+      gsap.fromTo(
+        "#yesBtn",
+        { boxShadow: "0 0 0 0 rgba(255, 92, 159, 0.45)" },
+        { boxShadow: "0 0 0 14px rgba(255, 92, 159, 0)", duration: 0.65, ease: "power1.out" },
+      );
+    },
+  });
+}
+
+function animateCelebrationIn() {
+  if (!window.gsap) return;
+  gsap.from("#celebration", { opacity: 0, y: 18, scale: 0.98, duration: 0.6, ease: "back.out(1.2)" });
+  gsap.from(".teddy", { y: 20, rotate: -8, duration: 0.65, ease: "back.out(1.8)" });
+  gsap.from(".bouquet", { y: 12, opacity: 0, duration: 0.55, delay: 0.15 });
 }
 
 function spawnRoseBurst() {
@@ -72,6 +116,28 @@ function spawnRoseBurst() {
 }
 
 function launchConfetti() {
+  if (typeof confetti === "function") {
+    const duration = 2200;
+    const start = Date.now();
+    const palette = ["#ff5c9f", "#ffd56a", "#ffffff", "#9bf7d3", "#ff9d63"];
+    const timer = setInterval(() => {
+      const t = duration - (Date.now() - start);
+      if (t <= 0) {
+        clearInterval(timer);
+        return;
+      }
+      const count = Math.max(15, Math.round((t / duration) * 38));
+      confetti({
+        particleCount: count,
+        spread: 76,
+        startVelocity: 28,
+        origin: { x: 0.1 + Math.random() * 0.8, y: -0.02 },
+        colors: palette,
+      });
+    }, 220);
+    return;
+  }
+
   const canvas = document.createElement("canvas");
   canvas.style.position = "fixed";
   canvas.style.inset = "0";
