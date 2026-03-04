@@ -241,17 +241,21 @@ body.final-message-lock .celebration * {
 
 #finalOverlay {
   position: fixed;
-  inset: 0;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100dvh;
   z-index: 10000;
-  display: grid;
-  place-items: center;
-  padding: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: max(10px, env(safe-area-inset-top)) 8px max(14px, env(safe-area-inset-bottom));
   background: linear-gradient(160deg, rgba(48, 12, 40, 0.995), rgba(70, 18, 56, 0.99));
   color: #fff7fc;
 }
 
 #finalOverlay .final-inner {
-  width: min(760px, 100%);
+  width: min(760px, calc(100vw - 16px));
+  margin: 0 auto;
   border: 1px solid rgba(255, 225, 238, 0.55);
   border-radius: 16px;
   padding: 16px 14px;
@@ -421,13 +425,11 @@ body.final-message-lock .celebration * {
   }
 
   #finalOverlay {
-    align-items: start;
-    overflow: auto;
-    padding: 8px;
+    padding: max(8px, env(safe-area-inset-top)) 6px max(10px, env(safe-area-inset-bottom));
   }
 
   #finalOverlay .final-inner {
-    width: 100%;
+    width: calc(100vw - 12px);
     padding: 12px 10px 14px;
   }
 

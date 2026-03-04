@@ -296,6 +296,9 @@ function renderFinalOverlay() {
   `;
 
   document.querySelector(".stage").style.display = "none";
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
   document.body.appendChild(overlay);
 }
 
