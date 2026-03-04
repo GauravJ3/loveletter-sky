@@ -49,6 +49,7 @@ function init() {
   runPetalBackground();
   setCard();
   runEntranceAnimation();
+  placeNoButtonRandomly();
 }
 
 function bindEvents() {
@@ -57,6 +58,7 @@ function bindEvents() {
   els.noBtn.addEventListener("mousemove", dodgeNoButton);
   els.noBtn.addEventListener("touchstart", dodgeNoButton, { passive: true });
   document.addEventListener("mousemove", evadePointerProximity);
+  window.addEventListener("resize", placeNoButtonRandomly);
   els.noBtn.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -72,8 +74,8 @@ function evadePointerProximity(event) {
   const dx = event.clientX - centerX;
   const dy = event.clientY - centerY;
   const distance = Math.hypot(dx, dy);
-  const triggerRadius = 150;
-  if (distance < triggerRadius) dodgeNoButton();
+  const triggerRadius = 240;
+  if (distance < triggerRadius) dodgeNoButton(event);
 }
 
 function setCard() {
@@ -83,15 +85,43 @@ function setCard() {
   els.cardMessage.textContent = c.m;
 }
 
-function dodgeNoButton() {
-  const area = els.actionArea.getBoundingClientRect();
+function dodgeNoButton(event) {
   const btn = els.noBtn;
-  const maxX = Math.max(0, area.width - btn.offsetWidth);
-  const maxY = Math.max(0, area.height + 74 - btn.offsetHeight);
-  const x = Math.random() * maxX - maxX / 2;
-  const y = Math.random() * maxY - maxY / 2;
-  btn.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 30 - 15}deg)`;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const pad = 18;
+  const bw = btn.offsetWidth || 140;
+  const bh = btn.offsetHeight || 48;
+
+  let targetX = pad + Math.random() * Math.max(10, vw - bw - pad * 2);
+  let targetY = pad + Math.random() * Math.max(10, vh - bh - pad * 2);
+
+  if (event && typeof event.clientX === "number") {
+    const current = btn.getBoundingClientRect();
+    const cx = current.left + current.width / 2;
+    const cy = current.top + current.height / 2;
+    const vx = cx - event.clientX;
+    const vy = cy - event.clientY;
+    const mag = Math.max(1, Math.hypot(vx, vy));
+    const ux = vx / mag;
+    const uy = vy / mag;
+    const jump = 240 + Math.random() * 220;
+    targetX = cx + ux * jump;
+    targetY = cy + uy * jump;
+  }
+
+  targetX = Math.max(pad, Math.min(vw - bw - pad, targetX));
+  targetY = Math.max(pad, Math.min(vh - bh - pad, targetY));
+
+  btn.style.position = "fixed";
+  btn.style.left = `${targetX}px`;
+  btn.style.top = `${targetY}px`;
+  btn.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
   if (window.gsap) gsap.fromTo(btn, { scale: 0.98 }, { scale: 1.04, duration: 0.12, yoyo: true, repeat: 1 });
+}
+
+function placeNoButtonRandomly() {
+  dodgeNoButton({ clientX: Math.random() * window.innerWidth, clientY: Math.random() * window.innerHeight });
 }
 
 function handleYes() {
