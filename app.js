@@ -74,10 +74,8 @@ function bindEvents() {
   document.addEventListener(
     "pointermove",
     (event) => {
-      if (event.pointerType === "mouse" || event.pointerType === "pen") {
-        lastPointer = { x: event.clientX, y: event.clientY };
-        evadePointerProximity(event);
-      }
+      lastPointer = { x: event.clientX, y: event.clientY };
+      evadePointerProximity(event);
     },
     { passive: true },
   );
@@ -123,7 +121,8 @@ function evadePointerProximity(event) {
   const dx = event.clientX - centerX;
   const dy = event.clientY - centerY;
   const distance = Math.hypot(dx, dy);
-  const triggerRadius = isCoarsePointer ? 320 : 240;
+  const touchLike = event.pointerType === "touch" || isCoarsePointer;
+  const triggerRadius = touchLike ? 420 : 250;
   if (distance < triggerRadius) dodgeNoButton(event);
 }
 
@@ -168,28 +167,16 @@ function dodgeNoButton(event) {
   const px = event && typeof event.clientX === "number" ? event.clientX : lastPointer.x;
   const py = event && typeof event.clientY === "number" ? event.clientY : lastPointer.y;
 
-  let targetX = pad;
-  let targetY = pad;
-  let found = false;
-
-  for (let i = 0; i < 30; i += 1) {
-    const candidateX = pad + Math.random() * Math.max(10, vw - bw - pad * 2);
-    const candidateY = pad + Math.random() * Math.max(10, vh - bh - pad * 2);
-    const candidateCenterX = candidateX + bw / 2;
-    const candidateCenterY = candidateY + bh / 2;
-    const dist = Math.hypot(candidateCenterX - px, candidateCenterY - py);
-    if (dist > 260) {
-      targetX = candidateX;
-      targetY = candidateY;
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) {
-    targetX = pad + Math.random() * Math.max(10, vw - bw - pad * 2);
-    targetY = pad + Math.random() * Math.max(10, vh - bh - pad * 2);
-  }
+  const currentCenterX = noCurrent.x + bw / 2;
+  const currentCenterY = noCurrent.y + bh / 2;
+  const vecX = currentCenterX - px;
+  const vecY = currentCenterY - py;
+  const mag = Math.max(1, Math.hypot(vecX, vecY));
+  const ux = vecX / mag;
+  const uy = vecY / mag;
+  const step = isCoarsePointer ? 220 : 180;
+  let targetX = noCurrent.x + ux * step + (Math.random() * 50 - 25);
+  let targetY = noCurrent.y + uy * step + (Math.random() * 50 - 25);
 
   targetX = Math.max(pad, Math.min(vw - bw - pad, targetX));
   targetY = Math.max(pad, Math.min(vh - bh - pad, targetY));
