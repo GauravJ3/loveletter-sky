@@ -1,286 +1,179 @@
-const memoryCards = [
-  { title: "First Smile", text: "The moment I knew your smile could fix a hard day." },
-  { title: "Long Walk", text: "Even silence felt warm while walking with you." },
-  { title: "Late Night Talk", text: "Hours felt like minutes when we shared dreams." },
-  { title: "Tiny Caring", text: "You remember little details nobody else notices." },
-  { title: "Inside Jokes", text: "We laugh at things only we understand." },
-  { title: "Quiet Peace", text: "You make ordinary days feel gentle and beautiful." },
-];
-
-const reasons = [
-  "You are kind even when no one is watching.",
-  "You make me want to become a better person.",
-  "Your laugh feels like sunlight in winter.",
-  "You care deeply, and that is rare.",
-  "With you, love feels easy and honest.",
-];
-
-const promises = [
-  { when: "Today", text: "I will listen more than I assume." },
-  { when: "This Week", text: "I will plan one thoughtful date with intention." },
-  { when: "This Month", text: "I will celebrate your dreams like they are mine too." },
-  { when: "Always", text: "I will choose respect, patience, and truth in every season." },
-];
-
-const letterTemplate =
-  "You make my world softer and brighter at the same time. I love how your presence turns small moments into favorite memories. I do not want perfect days, I want real days with you, where we keep choosing each other with care. Thank you for being you.";
-
-const romanticQuestions = [
-  {
-    prompt: "Would you let me keep being the safest place for your heart?",
-    yes: "Always, my favorite person.",
-    no: "Not today",
-  },
-  {
-    prompt: "Can I plan a dreamy sunset date just for us this week?",
-    yes: "Yes, please.",
-    no: "Maybe later",
-  },
-  {
-    prompt: "Should we keep collecting tiny beautiful memories together?",
-    yes: "Yes, a thousand times.",
-    no: "Nope",
-  },
-  {
-    prompt: "May I keep choosing you with patience, care, and loyalty?",
-    yes: "Yes, choose me.",
-    no: "Unsure",
-  },
-  {
-    prompt: "Would you love to build a peaceful future with me?",
-    yes: "Yes, let's build it.",
-    no: "Not now",
-  },
-  {
-    prompt: "Can I be your forever teammate in every season of life?",
-    yes: "Yes, forever teammate.",
-    no: "No thanks",
-  },
-  {
-    prompt: "Do you love Gaurav? Because he loves you more than anything.",
-    yes: "Yes, I do.",
-    no: "...",
-  },
-];
-
 const els = {
-  yourName: document.getElementById("yourName"),
-  herName: document.getElementById("herName"),
-  pairingLine: document.getElementById("pairingLine"),
-  themeBtn: document.getElementById("themeBtn"),
-  letterBtn: document.getElementById("letterBtn"),
-  closeLetterBtn: document.getElementById("closeLetterBtn"),
-  letterDialog: document.getElementById("letterDialog"),
-  typedLetter: document.getElementById("typedLetter"),
-  memoryGrid: document.getElementById("memoryGrid"),
-  revealReasonBtn: document.getElementById("revealReasonBtn"),
-  reasonText: document.getElementById("reasonText"),
-  promiseTimeline: document.getElementById("promiseTimeline"),
-  questionStage: document.getElementById("questionStage"),
-  questionProgress: document.getElementById("questionProgress"),
-  questResult: document.getElementById("questResult"),
-  canvas: document.getElementById("loveParticles"),
+  yesBtn: document.getElementById("yesBtn"),
+  noBtn: document.getElementById("noBtn"),
+  actionArea: document.getElementById("actionArea"),
+  questionCard: document.getElementById("questionCard"),
+  celebration: document.getElementById("celebration"),
+  canvas: document.getElementById("petalCanvas"),
 };
 
-let reasonIndex = 0;
-let typingTimer = null;
-let questionIndex = 0;
+let confettiId = null;
 
 init();
 
 function init() {
-  renderMemories();
-  renderPromises();
   bindEvents();
-  setupReveal();
-  setupParticles();
-  updatePairing();
-  renderQuestionCard(true);
+  runPetalBackground();
 }
 
 function bindEvents() {
-  [els.yourName, els.herName].forEach((input) => input.addEventListener("input", updatePairing));
-  els.themeBtn.addEventListener("click", () => {
-    document.body.classList.toggle("day");
+  els.yesBtn.addEventListener("click", handleYes);
+  els.noBtn.addEventListener("mouseenter", () => dodgeNoButton());
+  els.noBtn.addEventListener("mousemove", () => dodgeNoButton());
+  els.noBtn.addEventListener("touchstart", () => dodgeNoButton(), { passive: true });
+  els.noBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dodgeNoButton();
   });
-  els.letterBtn.addEventListener("click", openLetter);
-  els.closeLetterBtn.addEventListener("click", () => els.letterDialog.close());
-  els.revealReasonBtn.addEventListener("click", showNextReason);
 }
 
-function updatePairing() {
-  const your = (els.yourName.value || "A").trim();
-  const her = (els.herName.value || "B").trim();
-  els.pairingLine.textContent = `${your} + ${her}, written in stars.`;
+function dodgeNoButton() {
+  const area = els.actionArea.getBoundingClientRect();
+  const btn = els.noBtn;
+  const maxX = Math.max(0, area.width - btn.offsetWidth);
+  const maxY = Math.max(0, area.height + 60 - btn.offsetHeight);
+  const x = Math.random() * maxX - maxX / 2;
+  const y = Math.random() * maxY - maxY / 2;
+  btn.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 26 - 13}deg)`;
 }
 
-function renderMemories() {
-  els.memoryGrid.innerHTML = memoryCards
-    .map(
-      (item) => `<article class="memory-card">
-        <h3>${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(item.text)}</p>
-      </article>`,
-    )
-    .join("");
+function handleYes() {
+  els.questionCard.classList.add("hidden");
+  els.celebration.classList.remove("hidden");
+  launchConfetti();
+  spawnRoseBurst();
 }
 
-function renderPromises() {
-  els.promiseTimeline.innerHTML = promises
-    .map(
-      (p) => `<article class="promise"><b>${escapeHtml(p.when)}</b><span>${escapeHtml(p.text)}</span></article>`,
-    )
-    .join("");
-}
+function spawnRoseBurst() {
+  const symbols = ["🌹", "🌸", "💖", "✨", "🫶"];
+  for (let i = 0; i < 32; i += 1) {
+    const el = document.createElement("span");
+    el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    el.style.position = "fixed";
+    el.style.left = `${Math.random() * window.innerWidth}px`;
+    el.style.top = `${window.innerHeight + 20}px`;
+    el.style.fontSize = `${16 + Math.random() * 22}px`;
+    el.style.pointerEvents = "none";
+    el.style.zIndex = "20";
+    document.body.appendChild(el);
 
-function showNextReason() {
-  els.reasonText.textContent = reasons[reasonIndex];
-  reasonIndex = (reasonIndex + 1) % reasons.length;
-}
-
-function openLetter() {
-  els.letterDialog.showModal();
-  typeLetter(letterTemplate);
-}
-
-function typeLetter(text) {
-  clearInterval(typingTimer);
-  els.typedLetter.textContent = "";
-  let idx = 0;
-  typingTimer = setInterval(() => {
-    els.typedLetter.textContent += text[idx] || "";
-    idx += 1;
-    if (idx >= text.length) clearInterval(typingTimer);
-  }, 24);
-}
-
-function renderQuestionCard(first = false) {
-  const q = romanticQuestions[questionIndex];
-  els.questionProgress.textContent = `${questionIndex + 1} / ${romanticQuestions.length}`;
-  const card = document.createElement("article");
-  card.className = `question-card ${first ? "" : "soft-enter"}`;
-  card.innerHTML = `
-    <p class="question-title">${escapeHtml(q.prompt)}</p>
-    <div class="question-actions">
-      <button class="primary" data-yes="1">${escapeHtml(q.yes)}</button>
-      <button data-no="1">${escapeHtml(q.no)}</button>
-    </div>
-  `;
-
-  card.querySelector("[data-yes]").addEventListener("click", handlePositiveAnswer);
-  const noBtn = card.querySelector("[data-no]");
-  noBtn.addEventListener("mouseenter", () => floatAway(noBtn));
-  noBtn.addEventListener("touchstart", () => floatAway(noBtn), { passive: true });
-
-  els.questionStage.innerHTML = "";
-  els.questionStage.appendChild(card);
-}
-
-function handlePositiveAnswer() {
-  animateQuestionSuccess();
-  if (questionIndex < romanticQuestions.length - 1) {
-    questionIndex += 1;
-    setTimeout(() => {
-      renderQuestionCard();
-    }, 380);
-    return;
+    const rise = 1200 + Math.random() * 1100;
+    const drift = Math.random() * 220 - 110;
+    el.animate(
+      [
+        { transform: "translate(0, 0) rotate(0deg)", opacity: 0.95 },
+        { transform: `translate(${drift}px, -${window.innerHeight + 140}px) rotate(${180 + Math.random() * 360}deg)`, opacity: 0 },
+      ],
+      { duration: rise, easing: "cubic-bezier(0.2,0.7,0.2,1)", fill: "forwards" },
+    );
+    setTimeout(() => el.remove(), rise + 80);
   }
-  els.questResult.textContent = "You just unlocked the happiest ending: forever, with love.";
 }
 
-function floatAway(button) {
-  const box = button.parentElement.getBoundingClientRect();
-  const maxX = Math.max(0, box.width - button.offsetWidth);
-  const maxY = Math.max(0, 80);
-  button.style.position = "relative";
-  button.style.transition = "transform 220ms ease";
-  button.style.transform = `translate(${Math.random() * maxX - maxX / 2}px, ${Math.random() * maxY - maxY / 2}px) rotate(${Math.random() * 20 - 10}deg)`;
+function launchConfetti() {
+  const canvas = document.createElement("canvas");
+  canvas.style.position = "fixed";
+  canvas.style.inset = "0";
+  canvas.style.pointerEvents = "none";
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.zIndex = "25";
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext("2d");
+  const pieces = Array.from({ length: 180 }, () => ({
+    x: Math.random() * canvas.width,
+    y: -20 - Math.random() * canvas.height * 0.4,
+    vx: -2 + Math.random() * 4,
+    vy: 2 + Math.random() * 5,
+    r: 4 + Math.random() * 4,
+    rot: Math.random() * Math.PI,
+    color: ["#ff5c9f", "#ffd56a", "#ffffff", "#9bf7d3", "#ff9d63"][Math.floor(Math.random() * 5)],
+  }));
+
+  let start = performance.now();
+  const duration = 2800;
+
+  const frame = (now) => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach((p) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += 0.08;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.6);
+      ctx.restore();
+    });
+
+    if (now - start < duration) {
+      confettiId = requestAnimationFrame(frame);
+    } else {
+      cancelAnimationFrame(confettiId);
+      canvas.remove();
+    }
+  };
+
+  confettiId = requestAnimationFrame(frame);
 }
 
-function animateQuestionSuccess() {
-  const card = els.questionStage.querySelector(".question-card");
-  if (!card) return;
-  card.classList.add("accepted");
-}
-
-function setupReveal() {
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) entry.target.classList.add("show");
-      });
-    },
-    { threshold: 0.15 },
-  );
-  document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
-}
-
-function setupParticles() {
+function runPetalBackground() {
   const canvas = els.canvas;
   const ctx = canvas.getContext("2d");
-  const hearts = [];
-  const count = 48;
+  const petals = [];
 
-  function size() {
+  const resize = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-  }
+  };
 
-  function spawn() {
-    hearts.length = 0;
-    for (let i = 0; i < count; i += 1) {
-      hearts.push({
+  const seed = () => {
+    petals.length = 0;
+    for (let i = 0; i < 55; i += 1) {
+      petals.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: 2 + Math.random() * 4,
-        vx: -0.2 + Math.random() * 0.4,
-        vy: -0.3 - Math.random() * 0.8,
-        a: 0.2 + Math.random() * 0.4,
+        size: 2 + Math.random() * 5,
+        speedY: 0.4 + Math.random() * 1.2,
+        sway: Math.random() * 0.04,
+        angle: Math.random() * Math.PI * 2,
+        alpha: 0.2 + Math.random() * 0.5,
       });
     }
-  }
+  };
 
-  function drawHeart(x, y, s, alpha) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(s, s);
-    ctx.fillStyle = `rgba(255,110,170,${alpha})`;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(-1, -1.2, -2.4, -0.2, 0, 2);
-    ctx.bezierCurveTo(2.4, -0.2, 1, -1.2, 0, 0);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  function frame() {
+  const draw = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    hearts.forEach((h) => {
-      h.x += h.vx;
-      h.y += h.vy;
-      if (h.y < -10) {
-        h.y = canvas.height + 10;
-        h.x = Math.random() * canvas.width;
+    petals.forEach((p) => {
+      p.y += p.speedY;
+      p.angle += p.sway;
+      p.x += Math.sin(p.angle) * 0.7;
+
+      if (p.y > canvas.height + 10) {
+        p.y = -10;
+        p.x = Math.random() * canvas.width;
       }
-      if (h.x < -20) h.x = canvas.width + 20;
-      if (h.x > canvas.width + 20) h.x = -20;
-      drawHeart(h.x, h.y, h.r, h.a);
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = `rgba(255, 183, 214, ${p.alpha})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, p.size, p.size * 0.66, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     });
-    requestAnimationFrame(frame);
-  }
+    requestAnimationFrame(draw);
+  };
 
-  size();
-  spawn();
-  frame();
+  resize();
+  seed();
+  draw();
   window.addEventListener("resize", () => {
-    size();
-    spawn();
+    resize();
+    seed();
   });
-}
-
-function escapeHtml(text) {
-  return String(text || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
 }

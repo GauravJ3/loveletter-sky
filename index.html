@@ -3,86 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Loveletter Sky</title>
+    <title>One Little Question</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Manrope:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Manrope:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <canvas id="loveParticles" aria-hidden="true"></canvas>
-    <div class="halo"></div>
-    <main class="shell">
-      <header class="hero reveal">
-        <p class="kicker">A little universe for us</p>
-        <h1>Loveletter Sky</h1>
-        <p class="subtitle">
-          A romantic micro-site with memories, reasons, promises, and one heartfelt letter.
+    <canvas id="petalCanvas" aria-hidden="true"></canvas>
+    <main class="stage">
+      <section id="questionCard" class="card">
+        <p class="tag">A tiny heart mission</p>
+        <h1>Would you like to say yes to love, laughter, and a beautiful future with Gaurav?</h1>
+        <p class="sub">Choose wisely, madamji.</p>
+        <div class="actions" id="actionArea">
+          <button id="yesBtn" class="yes">Yes, with all my heart</button>
+          <button id="noBtn" class="no" aria-disabled="true" tabindex="-1">No</button>
+        </div>
+      </section>
+
+      <section id="celebration" class="celebration hidden" aria-live="polite">
+        <div class="teddy">🧸</div>
+        <div class="bouquet">🌹 🌸 🌹</div>
+        <h2>Yay! You chose love.</h2>
+        <p>
+          Congratulations for choosing such a creative, beautiful, and perfect person.
+          Trust me, you have not seen Venus&apos; full potential yet, madamji.
         </p>
-        <div class="name-row">
-          <label>
-            Your name
-            <input id="yourName" placeholder="Your name" value="A" />
-          </label>
-          <label>
-            Her name
-            <input id="herName" placeholder="Her name" value="B" />
-          </label>
-        </div>
-        <p id="pairingLine" class="pairing">A + B, written in stars.</p>
-        <div class="hero-actions">
-          <button id="themeBtn">Switch Day/Night</button>
-          <button id="letterBtn" class="primary">Open Love Letter</button>
-        </div>
-      </header>
-
-      <section class="panel reveal">
-        <div class="panel-head">
-          <h2>Constellation of Memories</h2>
-          <span>tap cards</span>
-        </div>
-        <div class="memory-grid" id="memoryGrid"></div>
-      </section>
-
-      <section class="panel reveal">
-        <div class="panel-head">
-          <h2>Reasons I Adore You</h2>
-          <span>reveal one by one</span>
-        </div>
-        <div class="reasons-wrap">
-          <button id="revealReasonBtn" class="primary">Reveal Reason</button>
-          <p id="reasonText">Click to start.</p>
-        </div>
-      </section>
-
-      <section class="panel reveal">
-        <div class="panel-head">
-          <h2>Promise Timeline</h2>
-          <span>slow and steady</span>
-        </div>
-        <div class="timeline" id="promiseTimeline"></div>
-      </section>
-
-      <section class="panel reveal mini-game">
-        <div class="panel-head">
-          <h2>Love Question Journey</h2>
-          <span id="questionProgress">1 / 7</span>
-        </div>
-        <div id="questionStage" class="question-stage"></div>
-        <p id="questResult" class="pairing"></p>
+        <p class="final">Now let&apos;s make unforgettable memories together.</p>
       </section>
     </main>
-
-    <dialog id="letterDialog" class="letter-dialog">
-      <article>
-        <h2>To my favorite person</h2>
-        <p id="typedLetter"></p>
-        <button id="closeLetterBtn">Close</button>
-      </article>
-    </dialog>
 
     <script src="./app.js"></script>
   </body>
