@@ -44,7 +44,7 @@ let cardCursor = 0;
 let lastPointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 const isCoarsePointer = window.matchMedia("(hover: none), (pointer: coarse)").matches;
 let noWanderTimer = null;
-let noTween = null;
+let noEvasionLoopId = null;
 
 init();
 
@@ -54,6 +54,7 @@ function init() {
   setCard();
   runEntranceAnimation();
   positionNoButtonInitial();
+  startNoEvasionLoop();
 }
 
 function bindEvents() {
@@ -124,10 +125,16 @@ function evadePointerProximity(event) {
   if (distance < triggerRadius) dodgeNoButton(event);
 }
 
-setInterval(() => {
-  if (document.body.classList.contains("final-message-lock")) return;
-  evadePointerProximity({ clientX: lastPointer.x, clientY: lastPointer.y });
-}, 140);
+function startNoEvasionLoop() {
+  if (noEvasionLoopId) cancelAnimationFrame(noEvasionLoopId);
+  const tick = () => {
+    if (!document.body.classList.contains("final-message-lock")) {
+      evadePointerProximity({ clientX: lastPointer.x, clientY: lastPointer.y });
+    }
+    noEvasionLoopId = requestAnimationFrame(tick);
+  };
+  noEvasionLoopId = requestAnimationFrame(tick);
+}
 
 function setCard() {
   const c = romanticCards[cardCursor];
@@ -176,26 +183,13 @@ function dodgeNoButton(event) {
   btn.style.position = "fixed";
   btn.style.visibility = "visible";
   btn.style.opacity = "1";
-
-  if (window.gsap) {
-    if (noTween) noTween.kill();
-    const flyDuration = isCoarsePointer ? 0.11 : 0.16;
-    noTween = gsap.to(btn, {
-      left: targetX,
-      top: targetY,
-      rotation: Math.random() * 30 - 15,
-      duration: flyDuration,
-      ease: "power3.out",
-      overwrite: true,
-      onStart: () => {
-        gsap.fromTo(btn, { scale: 1.06 }, { scale: 1, duration: 0.22, ease: "power2.out", overwrite: true });
-      },
-    });
-  } else {
-    btn.style.left = `${targetX}px`;
-    btn.style.top = `${targetY}px`;
-    btn.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
-  }
+  btn.style.left = `${targetX}px`;
+  btn.style.top = `${targetY}px`;
+  btn.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
+  btn.animate(
+    [{ transform: `${btn.style.transform} scale(1.08)` }, { transform: `${btn.style.transform} scale(1)` }],
+    { duration: isCoarsePointer ? 120 : 160, easing: "ease-out" },
+  );
 }
 
 function positionNoButtonInitial() {
@@ -258,6 +252,10 @@ function stopNoButtonWander() {
   if (noWanderTimer) {
     clearTimeout(noWanderTimer);
     noWanderTimer = null;
+  }
+  if (noEvasionLoopId) {
+    cancelAnimationFrame(noEvasionLoopId);
+    noEvasionLoopId = null;
   }
 }
 
