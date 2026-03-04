@@ -44,6 +44,7 @@ let cardCursor = 0;
 let lastPointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 const isCoarsePointer = window.matchMedia("(hover: none), (pointer: coarse)").matches;
 let noWanderTimer = null;
+let noTween = null;
 
 init();
 
@@ -154,12 +155,24 @@ function dodgeNoButton(event) {
   targetY = Math.max(pad, Math.min(vh - bh - pad, targetY));
 
   btn.style.position = "fixed";
-  btn.style.left = `${targetX}px`;
-  btn.style.top = `${targetY}px`;
-  btn.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
   btn.style.visibility = "visible";
   btn.style.opacity = "1";
-  if (window.gsap) gsap.fromTo(btn, { scale: 0.98 }, { scale: 1.04, duration: 0.12, yoyo: true, repeat: 1 });
+
+  if (window.gsap) {
+    if (noTween) noTween.kill();
+    noTween = gsap.to(btn, {
+      left: targetX,
+      top: targetY,
+      rotation: Math.random() * 30 - 15,
+      duration: 0.16,
+      ease: "power3.out",
+      overwrite: true,
+    });
+  } else {
+    btn.style.left = `${targetX}px`;
+    btn.style.top = `${targetY}px`;
+    btn.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
+  }
 }
 
 function positionNoButtonInitial() {
@@ -286,6 +299,12 @@ function renderFinalOverlay() {
   overlay.setAttribute("aria-live", "polite");
   overlay.innerHTML = `
     <div class="final-inner">
+      <div class="cute-row" aria-hidden="true">
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9f8.svg" alt="" />
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f970.svg" alt="" />
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f49e.svg" alt="" />
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f339.svg" alt="" />
+      </div>
       <h2>Yay! You chose love.</h2>
       <p>
         Congratulations for choosing such a creative, beautiful, and perfect person.

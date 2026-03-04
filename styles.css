@@ -263,6 +263,19 @@ body.final-message-lock .celebration * {
   text-align: center;
 }
 
+#finalOverlay .cute-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+#finalOverlay .cute-row img {
+  width: 34px;
+  height: 34px;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.25));
+}
+
 #finalOverlay h2 {
   margin: 0;
   font-size: clamp(1.8rem, 7vw, 3rem);
@@ -431,6 +444,11 @@ body.final-message-lock .celebration * {
   #finalOverlay .final-inner {
     width: calc(100vw - 12px);
     padding: 12px 10px 14px;
+  }
+
+  #finalOverlay .cute-row img {
+    width: 28px;
+    height: 28px;
   }
 
   body.final-message-lock .teddy,
