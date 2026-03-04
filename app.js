@@ -82,6 +82,7 @@ function bindEvents() {
       if (!t) return;
       lastPointer = { x: t.clientX, y: t.clientY };
       evadePointerProximity({ clientX: t.clientX, clientY: t.clientY });
+      if (isCoarsePointer) dodgeNoButton({ clientX: t.clientX, clientY: t.clientY });
     },
     { passive: true },
   );
@@ -106,7 +107,7 @@ function evadePointerProximity(event) {
   const dx = event.clientX - centerX;
   const dy = event.clientY - centerY;
   const distance = Math.hypot(dx, dy);
-  const triggerRadius = 240;
+  const triggerRadius = isCoarsePointer ? 320 : 240;
   if (distance < triggerRadius) dodgeNoButton(event);
 }
 
@@ -160,13 +161,17 @@ function dodgeNoButton(event) {
 
   if (window.gsap) {
     if (noTween) noTween.kill();
+    const flyDuration = isCoarsePointer ? 0.11 : 0.16;
     noTween = gsap.to(btn, {
       left: targetX,
       top: targetY,
       rotation: Math.random() * 30 - 15,
-      duration: 0.16,
+      duration: flyDuration,
       ease: "power3.out",
       overwrite: true,
+      onStart: () => {
+        gsap.fromTo(btn, { scale: 1.06 }, { scale: 1, duration: 0.22, ease: "power2.out", overwrite: true });
+      },
     });
   } else {
     btn.style.left = `${targetX}px`;
@@ -310,7 +315,7 @@ function renderFinalOverlay() {
         Congratulations for choosing such a creative, beautiful, and perfect person.
         Trust me, you have not seen Venus' full potential yet, madamji.
       </p>
-      <p class="final">Now let's make unforgettable memories together.</p>
+      <p class="final">I LOVE YOU MY CUTIEE &lt;3</p>
     </div>
   `;
 
