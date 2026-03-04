@@ -46,6 +46,7 @@ const isCoarsePointer = window.matchMedia("(hover: none), (pointer: coarse)").ma
 let noWanderTimer = null;
 let noTween = null;
 let lastDodgeAt = 0;
+let noArmed = true;
 
 init();
 
@@ -60,11 +61,9 @@ function init() {
 function bindEvents() {
   els.yesBtn.addEventListener("click", handleYes);
   els.noBtn.addEventListener("mouseenter", dodgeNoButton);
-  els.noBtn.addEventListener("mousemove", dodgeNoButton);
   els.noBtn.addEventListener("touchstart", dodgeNoButton, { passive: true });
   els.noBtn.addEventListener("mouseover", dodgeNoButton);
   els.noBtn.addEventListener("pointerenter", dodgeNoButton);
-  els.noBtn.addEventListener("pointermove", dodgeNoButton);
   document.addEventListener("mousemove", (event) => {
     lastPointer = { x: event.clientX, y: event.clientY };
     evadePointerProximity(event);
@@ -122,8 +121,14 @@ function evadePointerProximity(event) {
   const touchLike = event.pointerType === "touch" || isCoarsePointer;
   const triggerRadius = touchLike ? 420 : 250;
   const now = performance.now();
-  if (distance < triggerRadius && now - lastDodgeAt > 190) {
+  if (!noArmed) {
+    if (distance > triggerRadius + 120) noArmed = true;
+    return;
+  }
+
+  if (distance < triggerRadius && now - lastDodgeAt > 340) {
     lastDodgeAt = now;
+    noArmed = false;
     dodgeNoButton(event);
   }
 }
@@ -173,8 +178,8 @@ function dodgeNoButton(event) {
       left: targetX,
       top: targetY,
       rotation,
-      duration: isCoarsePointer ? 0.28 : 0.24,
-      ease: "power2.out",
+      duration: isCoarsePointer ? 0.42 : 0.35,
+      ease: "power3.out",
       overwrite: true,
     });
   } else {
@@ -213,6 +218,7 @@ function positionNoButtonInitial() {
   btn.style.transform = "rotate(0deg)";
   btn.style.visibility = "visible";
   btn.style.opacity = "1";
+  noArmed = true;
 }
 
 function startNoButtonWander() {
