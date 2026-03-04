@@ -45,6 +45,8 @@ let lastPointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 const isCoarsePointer = window.matchMedia("(hover: none), (pointer: coarse)").matches;
 let noWanderTimer = null;
 let noEvasionLoopId = null;
+let noCurrent = { x: 14, y: 96, r: 0 };
+let noTarget = { x: 14, y: 96, r: 0 };
 
 init();
 
@@ -130,10 +132,22 @@ function startNoEvasionLoop() {
   const tick = () => {
     if (!document.body.classList.contains("final-message-lock")) {
       evadePointerProximity({ clientX: lastPointer.x, clientY: lastPointer.y });
+      const smooth = isCoarsePointer ? 0.18 : 0.13;
+      noCurrent.x += (noTarget.x - noCurrent.x) * smooth;
+      noCurrent.y += (noTarget.y - noCurrent.y) * smooth;
+      noCurrent.r += (noTarget.r - noCurrent.r) * (smooth * 0.9);
+      applyNoButtonPosition();
     }
     noEvasionLoopId = requestAnimationFrame(tick);
   };
   noEvasionLoopId = requestAnimationFrame(tick);
+}
+
+function applyNoButtonPosition() {
+  const btn = els.noBtn;
+  btn.style.left = `${noCurrent.x}px`;
+  btn.style.top = `${noCurrent.y}px`;
+  btn.style.transform = `rotate(${noCurrent.r}deg)`;
 }
 
 function setCard() {
@@ -183,13 +197,9 @@ function dodgeNoButton(event) {
   btn.style.position = "fixed";
   btn.style.visibility = "visible";
   btn.style.opacity = "1";
-  btn.style.left = `${targetX}px`;
-  btn.style.top = `${targetY}px`;
-  btn.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
-  btn.animate(
-    [{ transform: `${btn.style.transform} scale(1.08)` }, { transform: `${btn.style.transform} scale(1)` }],
-    { duration: isCoarsePointer ? 120 : 160, easing: "ease-out" },
-  );
+  noTarget.x = targetX;
+  noTarget.y = targetY;
+  noTarget.r = Math.random() * 30 - 15;
 }
 
 function positionNoButtonInitial() {
@@ -216,11 +226,11 @@ function positionNoButtonInitial() {
   top = Math.max(pad, Math.min(vh - bh - pad, top));
 
   btn.style.position = "fixed";
-  btn.style.left = `${left}px`;
-  btn.style.top = `${top}px`;
-  btn.style.transform = "rotate(0deg)";
   btn.style.visibility = "visible";
   btn.style.opacity = "1";
+  noCurrent = { x: left, y: top, r: 0 };
+  noTarget = { x: left, y: top, r: 0 };
+  applyNoButtonPosition();
 }
 
 function startNoButtonWander() {
