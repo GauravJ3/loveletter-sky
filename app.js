@@ -44,9 +44,8 @@ let cardCursor = 0;
 let lastPointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 const isCoarsePointer = window.matchMedia("(hover: none), (pointer: coarse)").matches;
 let noWanderTimer = null;
-let noEvasionLoopId = null;
-let noCurrent = { x: 14, y: 96, r: 0 };
-let noTarget = { x: 14, y: 96, r: 0 };
+let noTween = null;
+let lastDodgeAt = 0;
 
 init();
 
@@ -56,7 +55,6 @@ function init() {
   setCard();
   runEntranceAnimation();
   positionNoButtonInitial();
-  startNoEvasionLoop();
 }
 
 function bindEvents() {
@@ -123,30 +121,11 @@ function evadePointerProximity(event) {
   const distance = Math.hypot(dx, dy);
   const touchLike = event.pointerType === "touch" || isCoarsePointer;
   const triggerRadius = touchLike ? 420 : 250;
-  if (distance < triggerRadius) dodgeNoButton(event);
-}
-
-function startNoEvasionLoop() {
-  if (noEvasionLoopId) cancelAnimationFrame(noEvasionLoopId);
-  const tick = () => {
-    if (!document.body.classList.contains("final-message-lock")) {
-      evadePointerProximity({ clientX: lastPointer.x, clientY: lastPointer.y });
-      const smooth = isCoarsePointer ? 0.18 : 0.13;
-      noCurrent.x += (noTarget.x - noCurrent.x) * smooth;
-      noCurrent.y += (noTarget.y - noCurrent.y) * smooth;
-      noCurrent.r += (noTarget.r - noCurrent.r) * (smooth * 0.9);
-      applyNoButtonPosition();
-    }
-    noEvasionLoopId = requestAnimationFrame(tick);
-  };
-  noEvasionLoopId = requestAnimationFrame(tick);
-}
-
-function applyNoButtonPosition() {
-  const btn = els.noBtn;
-  btn.style.left = `${noCurrent.x}px`;
-  btn.style.top = `${noCurrent.y}px`;
-  btn.style.transform = `rotate(${noCurrent.r}deg)`;
+  const now = performance.now();
+  if (distance < triggerRadius && now - lastDodgeAt > 190) {
+    lastDodgeAt = now;
+    dodgeNoButton(event);
+  }
 }
 
 function setCard() {
@@ -167,16 +146,19 @@ function dodgeNoButton(event) {
   const px = event && typeof event.clientX === "number" ? event.clientX : lastPointer.x;
   const py = event && typeof event.clientY === "number" ? event.clientY : lastPointer.y;
 
-  const currentCenterX = noCurrent.x + bw / 2;
-  const currentCenterY = noCurrent.y + bh / 2;
+  const rect = btn.getBoundingClientRect();
+  const currentLeft = rect.left || 14;
+  const currentTop = rect.top || 96;
+  const currentCenterX = currentLeft + bw / 2;
+  const currentCenterY = currentTop + bh / 2;
   const vecX = currentCenterX - px;
   const vecY = currentCenterY - py;
   const mag = Math.max(1, Math.hypot(vecX, vecY));
   const ux = vecX / mag;
   const uy = vecY / mag;
   const step = isCoarsePointer ? 220 : 180;
-  let targetX = noCurrent.x + ux * step + (Math.random() * 50 - 25);
-  let targetY = noCurrent.y + uy * step + (Math.random() * 50 - 25);
+  let targetX = currentLeft + ux * step + (Math.random() * 50 - 25);
+  let targetY = currentTop + uy * step + (Math.random() * 50 - 25);
 
   targetX = Math.max(pad, Math.min(vw - bw - pad, targetX));
   targetY = Math.max(pad, Math.min(vh - bh - pad, targetY));
@@ -184,9 +166,22 @@ function dodgeNoButton(event) {
   btn.style.position = "fixed";
   btn.style.visibility = "visible";
   btn.style.opacity = "1";
-  noTarget.x = targetX;
-  noTarget.y = targetY;
-  noTarget.r = Math.random() * 30 - 15;
+  const rotation = Math.random() * 30 - 15;
+  if (window.gsap) {
+    if (noTween) noTween.kill();
+    noTween = gsap.to(btn, {
+      left: targetX,
+      top: targetY,
+      rotation,
+      duration: isCoarsePointer ? 0.28 : 0.24,
+      ease: "power2.out",
+      overwrite: true,
+    });
+  } else {
+    btn.style.left = `${targetX}px`;
+    btn.style.top = `${targetY}px`;
+    btn.style.transform = `rotate(${rotation}deg)`;
+  }
 }
 
 function positionNoButtonInitial() {
@@ -213,11 +208,11 @@ function positionNoButtonInitial() {
   top = Math.max(pad, Math.min(vh - bh - pad, top));
 
   btn.style.position = "fixed";
+  btn.style.left = `${left}px`;
+  btn.style.top = `${top}px`;
+  btn.style.transform = "rotate(0deg)";
   btn.style.visibility = "visible";
   btn.style.opacity = "1";
-  noCurrent = { x: left, y: top, r: 0 };
-  noTarget = { x: left, y: top, r: 0 };
-  applyNoButtonPosition();
 }
 
 function startNoButtonWander() {
@@ -249,10 +244,6 @@ function stopNoButtonWander() {
   if (noWanderTimer) {
     clearTimeout(noWanderTimer);
     noWanderTimer = null;
-  }
-  if (noEvasionLoopId) {
-    cancelAnimationFrame(noEvasionLoopId);
-    noEvasionLoopId = null;
   }
 }
 
