@@ -25,6 +25,44 @@ const promises = [
 const letterTemplate =
   "You make my world softer and brighter at the same time. I love how your presence turns small moments into favorite memories. I do not want perfect days, I want real days with you, where we keep choosing each other with care. Thank you for being you.";
 
+const romanticQuestions = [
+  {
+    prompt: "Would you let me keep being the safest place for your heart?",
+    yes: "Always, my favorite person.",
+    no: "Not today",
+  },
+  {
+    prompt: "Can I plan a dreamy sunset date just for us this week?",
+    yes: "Yes, please.",
+    no: "Maybe later",
+  },
+  {
+    prompt: "Should we keep collecting tiny beautiful memories together?",
+    yes: "Yes, a thousand times.",
+    no: "Nope",
+  },
+  {
+    prompt: "May I keep choosing you with patience, care, and loyalty?",
+    yes: "Yes, choose me.",
+    no: "Unsure",
+  },
+  {
+    prompt: "Would you love to build a peaceful future with me?",
+    yes: "Yes, let's build it.",
+    no: "Not now",
+  },
+  {
+    prompt: "Can I be your forever teammate in every season of life?",
+    yes: "Yes, forever teammate.",
+    no: "No thanks",
+  },
+  {
+    prompt: "Do you love Gaurav? Because he loves you more than anything.",
+    yes: "Yes, I do.",
+    no: "...",
+  },
+];
+
 const els = {
   yourName: document.getElementById("yourName"),
   herName: document.getElementById("herName"),
@@ -38,14 +76,15 @@ const els = {
   revealReasonBtn: document.getElementById("revealReasonBtn"),
   reasonText: document.getElementById("reasonText"),
   promiseTimeline: document.getElementById("promiseTimeline"),
-  yesBtn: document.getElementById("yesBtn"),
-  maybeBtn: document.getElementById("maybeBtn"),
+  questionStage: document.getElementById("questionStage"),
+  questionProgress: document.getElementById("questionProgress"),
   questResult: document.getElementById("questResult"),
   canvas: document.getElementById("loveParticles"),
 };
 
 let reasonIndex = 0;
 let typingTimer = null;
+let questionIndex = 0;
 
 init();
 
@@ -56,6 +95,7 @@ function init() {
   setupReveal();
   setupParticles();
   updatePairing();
+  renderQuestionCard(true);
 }
 
 function bindEvents() {
@@ -66,10 +106,6 @@ function bindEvents() {
   els.letterBtn.addEventListener("click", openLetter);
   els.closeLetterBtn.addEventListener("click", () => els.letterDialog.close());
   els.revealReasonBtn.addEventListener("click", showNextReason);
-  els.yesBtn.addEventListener("click", () => {
-    els.questResult.textContent = "Perfect. Date quest accepted. You win a million forehead kisses.";
-  });
-  els.maybeBtn.addEventListener("mouseenter", dodgeMaybeButton);
 }
 
 function updatePairing() {
@@ -118,14 +154,53 @@ function typeLetter(text) {
   }, 24);
 }
 
-function dodgeMaybeButton(event) {
-  const btn = event.currentTarget;
-  const parent = btn.parentElement;
-  const maxX = Math.max(0, parent.clientWidth - btn.clientWidth);
-  const maxY = 46;
-  btn.style.position = "relative";
-  btn.style.left = `${Math.random() * maxX * 0.36}px`;
-  btn.style.top = `${Math.random() * maxY - maxY / 2}px`;
+function renderQuestionCard(first = false) {
+  const q = romanticQuestions[questionIndex];
+  els.questionProgress.textContent = `${questionIndex + 1} / ${romanticQuestions.length}`;
+  const card = document.createElement("article");
+  card.className = `question-card ${first ? "" : "soft-enter"}`;
+  card.innerHTML = `
+    <p class="question-title">${escapeHtml(q.prompt)}</p>
+    <div class="question-actions">
+      <button class="primary" data-yes="1">${escapeHtml(q.yes)}</button>
+      <button data-no="1">${escapeHtml(q.no)}</button>
+    </div>
+  `;
+
+  card.querySelector("[data-yes]").addEventListener("click", handlePositiveAnswer);
+  const noBtn = card.querySelector("[data-no]");
+  noBtn.addEventListener("mouseenter", () => floatAway(noBtn));
+  noBtn.addEventListener("touchstart", () => floatAway(noBtn), { passive: true });
+
+  els.questionStage.innerHTML = "";
+  els.questionStage.appendChild(card);
+}
+
+function handlePositiveAnswer() {
+  animateQuestionSuccess();
+  if (questionIndex < romanticQuestions.length - 1) {
+    questionIndex += 1;
+    setTimeout(() => {
+      renderQuestionCard();
+    }, 380);
+    return;
+  }
+  els.questResult.textContent = "You just unlocked the happiest ending: forever, with love.";
+}
+
+function floatAway(button) {
+  const box = button.parentElement.getBoundingClientRect();
+  const maxX = Math.max(0, box.width - button.offsetWidth);
+  const maxY = Math.max(0, 80);
+  button.style.position = "relative";
+  button.style.transition = "transform 220ms ease";
+  button.style.transform = `translate(${Math.random() * maxX - maxX / 2}px, ${Math.random() * maxY - maxY / 2}px) rotate(${Math.random() * 20 - 10}deg)`;
+}
+
+function animateQuestionSuccess() {
+  const card = els.questionStage.querySelector(".question-card");
+  if (!card) return;
+  card.classList.add("accepted");
 }
 
 function setupReveal() {
