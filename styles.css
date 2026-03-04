@@ -178,7 +178,6 @@ button:hover {
   position: relative;
   background: rgba(255, 255, 255, 0.18);
   transition: transform 180ms ease, background 180ms ease;
-  pointer-events: none;
   user-select: none;
 }
 

@@ -41,6 +41,7 @@ const els = {
 
 let confettiId = null;
 let cardCursor = 0;
+let lastPointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
 init();
 
@@ -57,11 +58,18 @@ function bindEvents() {
   els.noBtn.addEventListener("mouseenter", dodgeNoButton);
   els.noBtn.addEventListener("mousemove", dodgeNoButton);
   els.noBtn.addEventListener("touchstart", dodgeNoButton, { passive: true });
-  document.addEventListener("mousemove", evadePointerProximity);
+  document.addEventListener("mousemove", (event) => {
+    lastPointer = { x: event.clientX, y: event.clientY };
+    evadePointerProximity(event);
+  });
   window.addEventListener("resize", placeNoButtonRandomly);
   els.noBtn.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
+    dodgeNoButton();
+  });
+  els.noBtn.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
     dodgeNoButton();
   });
 }
@@ -93,21 +101,30 @@ function dodgeNoButton(event) {
   const bw = btn.offsetWidth || 140;
   const bh = btn.offsetHeight || 48;
 
-  let targetX = pad + Math.random() * Math.max(10, vw - bw - pad * 2);
-  let targetY = pad + Math.random() * Math.max(10, vh - bh - pad * 2);
+  const px = event && typeof event.clientX === "number" ? event.clientX : lastPointer.x;
+  const py = event && typeof event.clientY === "number" ? event.clientY : lastPointer.y;
 
-  if (event && typeof event.clientX === "number") {
-    const current = btn.getBoundingClientRect();
-    const cx = current.left + current.width / 2;
-    const cy = current.top + current.height / 2;
-    const vx = cx - event.clientX;
-    const vy = cy - event.clientY;
-    const mag = Math.max(1, Math.hypot(vx, vy));
-    const ux = vx / mag;
-    const uy = vy / mag;
-    const jump = 240 + Math.random() * 220;
-    targetX = cx + ux * jump;
-    targetY = cy + uy * jump;
+  let targetX = pad;
+  let targetY = pad;
+  let found = false;
+
+  for (let i = 0; i < 30; i += 1) {
+    const candidateX = pad + Math.random() * Math.max(10, vw - bw - pad * 2);
+    const candidateY = pad + Math.random() * Math.max(10, vh - bh - pad * 2);
+    const candidateCenterX = candidateX + bw / 2;
+    const candidateCenterY = candidateY + bh / 2;
+    const dist = Math.hypot(candidateCenterX - px, candidateCenterY - py);
+    if (dist > 260) {
+      targetX = candidateX;
+      targetY = candidateY;
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    targetX = pad + Math.random() * Math.max(10, vw - bw - pad * 2);
+    targetY = pad + Math.random() * Math.max(10, vh - bh - pad * 2);
   }
 
   targetX = Math.max(pad, Math.min(vw - bw - pad, targetX));
@@ -121,7 +138,7 @@ function dodgeNoButton(event) {
 }
 
 function placeNoButtonRandomly() {
-  dodgeNoButton({ clientX: Math.random() * window.innerWidth, clientY: Math.random() * window.innerHeight });
+  dodgeNoButton({ clientX: lastPointer.x, clientY: lastPointer.y });
 }
 
 function handleYes() {
