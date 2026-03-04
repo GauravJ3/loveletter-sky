@@ -151,24 +151,42 @@ function dodgeNoButton(event) {
   const px = event && typeof event.clientX === "number" ? event.clientX : lastPointer.x;
   const py = event && typeof event.clientY === "number" ? event.clientY : lastPointer.y;
 
+  let targetX = pad;
+  let targetY = pad;
+  let bestScore = -Infinity;
+
+  // Sample many candidate points across viewport and pick one
+  // that is far from pointer and not too close to current position.
   const rect = btn.getBoundingClientRect();
   const currentLeft = rect.left || 14;
   const currentTop = rect.top || 96;
-  const currentCenterX = currentLeft + bw / 2;
-  const currentCenterY = currentTop + bh / 2;
-  const vecX = currentCenterX - px;
-  const vecY = currentCenterY - py;
-  const mag = Math.max(1, Math.hypot(vecX, vecY));
-  const ux = vecX / mag;
-  const uy = vecY / mag;
-  const step = isCoarsePointer ? 220 : 180;
-  let targetX = currentLeft + ux * step + (Math.random() * 50 - 25);
-  let targetY = currentTop + uy * step + (Math.random() * 50 - 25);
+  const currentCx = currentLeft + bw / 2;
+  const currentCy = currentTop + bh / 2;
+  const minStep = isCoarsePointer ? 110 : 85;
+
+  for (let i = 0; i < 36; i += 1) {
+    const cx = pad + Math.random() * Math.max(10, vw - bw - pad * 2);
+    const cy = pad + Math.random() * Math.max(10, vh - bh - pad * 2);
+    const candCx = cx + bw / 2;
+    const candCy = cy + bh / 2;
+    const fromPointer = Math.hypot(candCx - px, candCy - py);
+    const fromCurrent = Math.hypot(candCx - currentCx, candCy - currentCy);
+    if (fromCurrent < minStep) continue;
+
+    // Prefer positions farther from pointer; add tiny randomness for organic feel.
+    const score = fromPointer + Math.random() * 20;
+    if (score > bestScore) {
+      bestScore = score;
+      targetX = cx;
+      targetY = cy;
+    }
+  }
 
   targetX = Math.max(pad, Math.min(vw - bw - pad, targetX));
   targetY = Math.max(pad, Math.min(vh - bh - pad, targetY));
 
   btn.style.position = "fixed";
+  btn.style.display = "inline-block";
   btn.style.visibility = "visible";
   btn.style.opacity = "1";
   const rotation = Math.random() * 30 - 15;
@@ -213,6 +231,7 @@ function positionNoButtonInitial() {
   top = Math.max(pad, Math.min(vh - bh - pad, top));
 
   btn.style.position = "fixed";
+  btn.style.display = "inline-block";
   btn.style.left = `${left}px`;
   btn.style.top = `${top}px`;
   btn.style.transform = "rotate(0deg)";
