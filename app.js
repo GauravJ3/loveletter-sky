@@ -193,12 +193,12 @@ function openFinalCelebration() {
     els.celebration.classList.remove("hidden");
     document.body.classList.add("final-mode");
   }
-  launchConfetti(3600);
-  spawnRoseBurst(36);
+  launchConfetti(1600);
+  spawnRoseBurst(18);
   playLoveHook();
   setTimeout(() => {
     els.celebration.classList.add("settled");
-  }, 4200);
+  }, 1800);
 }
 
 function runEntranceAnimation() {
