@@ -45,6 +45,10 @@ body.final-message-lock .stage {
   align-items: center;
 }
 
+body.final-message-lock .no {
+  display: none !important;
+}
+
 .stage {
   min-height: 100vh;
   display: grid;
@@ -224,8 +228,15 @@ body.final-message-lock .celebration {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  max-height: min(88vh, 700px);
+  width: min(760px, calc(100vw - 12px));
+  max-height: min(94dvh, 760px);
   overflow: auto;
+}
+
+body.final-message-lock .celebration,
+body.final-message-lock .celebration * {
+  animation: none !important;
+  transition: none !important;
 }
 
 .celebration::before {
@@ -360,7 +371,20 @@ body.final-message-lock .celebration {
   }
 
   .celebration {
-    min-height: 420px;
+    min-height: auto;
+    padding: 14px 12px 18px;
+  }
+
+  body.final-message-lock .celebration {
+    top: 50%;
+    width: calc(100vw - 8px);
+    max-height: 96dvh;
+    padding: 12px 10px 16px;
+  }
+
+  body.final-message-lock .teddy,
+  body.final-message-lock .bouquet {
+    display: none;
   }
 
   .celebration h2 {

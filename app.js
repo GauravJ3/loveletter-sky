@@ -272,28 +272,11 @@ function transitionToNextCard() {
 }
 
 function openFinalCelebration() {
-  if (window.gsap) {
-    gsap.to(".card-stack-shell", {
-      opacity: 0,
-      y: -18,
-      duration: 0.35,
-      onComplete: () => {
-        document.querySelector(".card-stack-shell").classList.add("hidden");
-        els.celebration.classList.remove("hidden");
-        document.body.classList.add("final-mode");
-        document.body.classList.add("final-message-lock");
-        stopNoButtonWander();
-        animateCelebrationIn();
-      },
-    });
-  } else {
-    document.querySelector(".card-stack-shell").classList.add("hidden");
-    els.celebration.classList.remove("hidden");
-    document.body.classList.add("final-mode");
-    document.body.classList.add("final-message-lock");
-    stopNoButtonWander();
-  }
-  playLoveHook();
+  document.querySelector(".card-stack-shell").classList.add("hidden");
+  els.celebration.classList.remove("hidden");
+  document.body.classList.add("final-mode");
+  document.body.classList.add("final-message-lock");
+  stopNoButtonWander();
   els.celebration.classList.add("settled");
 }
 
