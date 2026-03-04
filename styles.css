@@ -200,6 +200,7 @@ button:hover {
   border: 1px solid rgba(255, 225, 238, 0.5);
   position: relative;
   z-index: 50;
+  min-height: 340px;
 }
 
 .hidden {
@@ -222,6 +223,21 @@ button:hover {
   max-width: 52ch;
   line-height: 1.7;
   color: #ffe9f5;
+  font-size: 1.08rem;
+}
+
+.celebration h2 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.2;
+}
+
+.celebration.settled {
+  background: linear-gradient(160deg, rgba(54, 16, 46, 0.96), rgba(86, 24, 67, 0.95));
+}
+
+.celebration.settled .teddy,
+.celebration.settled .bouquet {
+  animation: none;
 }
 
 .final {

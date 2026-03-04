@@ -179,6 +179,9 @@ function openFinalCelebration() {
   launchConfetti(3600);
   spawnRoseBurst(36);
   playLoveHook();
+  setTimeout(() => {
+    els.celebration.classList.add("settled");
+  }, 4200);
 }
 
 function runEntranceAnimation() {
