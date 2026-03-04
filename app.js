@@ -42,6 +42,8 @@ const els = {
 let confettiId = null;
 let cardCursor = 0;
 let lastPointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+const isCoarsePointer = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+let noWanderTimer = null;
 
 init();
 
@@ -51,6 +53,7 @@ function init() {
   setCard();
   runEntranceAnimation();
   placeNoButtonRandomly();
+  if (isCoarsePointer) startNoButtonWander();
 }
 
 function bindEvents() {
@@ -62,6 +65,16 @@ function bindEvents() {
     lastPointer = { x: event.clientX, y: event.clientY };
     evadePointerProximity(event);
   });
+  document.addEventListener(
+    "touchmove",
+    (event) => {
+      const t = event.touches && event.touches[0];
+      if (!t) return;
+      lastPointer = { x: t.clientX, y: t.clientY };
+      evadePointerProximity({ clientX: t.clientX, clientY: t.clientY });
+    },
+    { passive: true },
+  );
   window.addEventListener("resize", placeNoButtonRandomly);
   if (window.visualViewport) window.visualViewport.addEventListener("resize", placeNoButtonRandomly);
   els.noBtn.addEventListener("click", (event) => {
@@ -142,6 +155,30 @@ function dodgeNoButton(event) {
 
 function placeNoButtonRandomly() {
   dodgeNoButton({ clientX: lastPointer.x, clientY: lastPointer.y });
+}
+
+function startNoButtonWander() {
+  if (!window.gsap || noWanderTimer) return;
+  const move = () => {
+    const btn = els.noBtn;
+    const { vw, vh } = getViewportSize();
+    const pad = 14;
+    const bw = btn.offsetWidth || 90;
+    const bh = btn.offsetHeight || 42;
+    const tx = pad + Math.random() * Math.max(10, vw - bw - pad * 2);
+    const ty = pad + Math.random() * Math.max(10, vh - bh - pad * 2);
+    gsap.to(btn, {
+      left: tx,
+      top: ty,
+      rotation: Math.random() * 18 - 9,
+      duration: 0.9,
+      ease: "power2.out",
+      onComplete: () => {
+        noWanderTimer = setTimeout(move, 500);
+      },
+    });
+  };
+  move();
 }
 
 function getViewportSize() {
