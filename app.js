@@ -56,11 +56,24 @@ function bindEvents() {
   els.noBtn.addEventListener("mouseenter", dodgeNoButton);
   els.noBtn.addEventListener("mousemove", dodgeNoButton);
   els.noBtn.addEventListener("touchstart", dodgeNoButton, { passive: true });
+  document.addEventListener("mousemove", evadePointerProximity);
   els.noBtn.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
     dodgeNoButton();
   });
+}
+
+function evadePointerProximity(event) {
+  const rect = els.noBtn.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  const dx = event.clientX - centerX;
+  const dy = event.clientY - centerY;
+  const distance = Math.hypot(dx, dy);
+  const triggerRadius = 150;
+  if (distance < triggerRadius) dodgeNoButton();
 }
 
 function setCard() {
