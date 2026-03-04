@@ -137,14 +137,16 @@ function openFinalCelebration() {
       onComplete: () => {
         document.querySelector(".card-stack-shell").classList.add("hidden");
         els.celebration.classList.remove("hidden");
+        document.body.classList.add("final-mode");
         animateCelebrationIn();
       },
     });
   } else {
     document.querySelector(".card-stack-shell").classList.add("hidden");
     els.celebration.classList.remove("hidden");
+    document.body.classList.add("final-mode");
   }
-  launchConfetti(2600);
+  launchConfetti(3600);
   spawnRoseBurst(36);
   playLoveHook();
 }
